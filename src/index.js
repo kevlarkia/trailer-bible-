@@ -2,6 +2,8 @@ require('dotenv').config();
 const { Client, GatewayIntentBits, Partials, ActivityType, Events, Collection } = require('discord.js');
 const path = require('node:path');
 const fs = require('node:fs');
+const { parseTriggerBlock } = require('./templateTrigger');
+const { completeCategorization } = require('./ai');
 
 const token = process.env.DISCORD_TOKEN;
 const applicationId = process.env.DISCORD_APPLICATION_ID;
@@ -72,9 +74,29 @@ client.on(Events.InteractionCreate, async (interaction) => {
 client.on(Events.MessageCreate, async (message) => {
   try {
     if (message.author.bot) return;
+    const content = message.content;
+    const lower = content.toLowerCase();
+
+    // Categorization template trigger parsing
+    const block = parseTriggerBlock(content);
+    if (block && block.keyword && block.payload) {
+      // Only act if the very first non-empty line equals the keyword (exact match)
+      const firstNonEmpty = block.payload.split(/\r?\n/).find(l => l.trim().length > 0) || '';
+      if (firstNonEmpty.trim() === block.keyword) {
+        try {
+          const prompt = content; // Pass the full block to AI
+          const out = await completeCategorization(prompt);
+          await message.reply(out.slice(0, 1900)); // keep under Discord 2000 char limit
+          return;
+        } catch (e) {
+          await message.reply('AI not configured. Add OPENAI_API_KEY to run categorization.');
+          return;
+        }
+      }
+    }
+
     // Gentle trigger phrases
-    const content = message.content.toLowerCase();
-    if (content.includes('ground me') || content.includes('panic')) {
+    if (lower.includes('ground me') || lower.includes('panic')) {
       await message.reply({
         content: [
           'Grounding check-in:',
@@ -88,8 +110,8 @@ client.on(Events.MessageCreate, async (message) => {
       });
       return;
     }
-    if (content.startsWith('help')) {
-      await message.reply('Try /help for commands, or /ground for a guided exercise.');
+    if (lower.startsWith('help')) {
+      await message.reply('Try /help or /ground. For AI categorization, paste your block and ensure the first line after TRIGGER WORD is the keyword.');
     }
   } catch (err) {
     console.error('Error in messageCreate:', err);
