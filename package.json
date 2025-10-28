@@ -1,0 +1,21 @@
+{
+  "name": "m2-support-bot",
+  "version": "0.1.0",
+  "description": "Neutral Discord support companion bot (non-impersonating) with grounding and check-in commands.",
+  "main": "src/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/index.js",
+    "deploy": "node scripts/deploy-commands.js",
+    "lint": "echo \"No linter configured\""
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^14.15.3",
+    "dotenv": "^16.4.5",
+    "openai": "^4.104.0"
+  }
+}
