@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phoenix Flame Crown - 3D Interactive Model</title>
+    <meta name="description" content="Interactive 3D model of the Phoenix Flame Crown featuring 162 carats of precious gemstones in 18K gold.">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:wght@300;400&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Cormorant Garamond', serif;
+            background: linear-gradient(135deg, #1a0e0e 0%, #3d1f1f 50%, #1a0e0e 100%);
+            color: #f4e4d4;
+            overflow: hidden;
+        }
+        
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        
+        canvas {
+            display: block;
+            cursor: grab;
+        }
+        
+        canvas:active {
+            cursor: grabbing;
+        }
+        
+        .ui-panel {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(26, 14, 14, 0.85);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(218, 165, 32, 0.3);
+            border-radius: 4px;
+            padding: 25px;
+            min-width: 280px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+        
+        .ui-panel h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 24px;
+            color: #daa520;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        .ui-panel h2 {
+            font-size: 14px;
+            color: #c9a96e;
+            margin-bottom: 20px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        .control-group label {
+            display: block;
+            font-size: 12px;
+            color: #c9a96e;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .control-group button {
+            background: rgba(218, 165, 32, 0.2);
+            border: 1px solid rgba(218, 165, 32, 0.5);
+            color: #daa520;
+            padding: 10px 18px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 13px;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        
+        .control-group button:hover {
+            background: rgba(218, 165, 32, 0.4);
+            border-color: #daa520;
+            transform: translateY(-2px);
+        }
+        
+        .control-group button.active {
+            background: rgba(218, 165, 32, 0.6);
+            border-color: #daa520;
+        }
+        
+        .specs-panel {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(26, 14, 14, 0.85);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(218, 165, 32, 0.3);
+            border-radius: 4px;
+            padding: 20px;
+            max-width: 320px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+        
+        .specs-panel h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 16px;
+            color: #daa520;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+        }
+        
+        .spec-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        
+        .spec-label {
+            color: #c9a96e;
+            font-weight: 300;
+        }
+        
+        .spec-value {
+            color: #f4e4d4;
+            font-weight: 400;
+        }
+        
+        .gemstone-legend {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(218, 165, 32, 0.2);
+        }
+        
+        .gem-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 12px;
+        }
+        
+        .gem-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+
+    <div class="ui-panel">
+        <h1>Phoenix Crown</h1>
+        <h2>Interactive 3D Model</h2>
+        
+        <div class="control-group">
+            <label>View Mode</label>
+            <button class="active" onclick="setViewMode('solid', this)">Solid</button>
+            <button onclick="setViewMode('wireframe', this)">Wireframe</button>
+            <button onclick="setViewMode('gems', this)">Gems Only</button>
+        </div>
+        
+        <div class="control-group">
+            <label>Preset Views</label>
+            <button onclick="setView('front')">Front</button>
+            <button onclick="setView('side')">Side</button>
+            <button onclick="setView('top')">Top</button>
+        </div>
+        
+        <div class="control-group">
+            <label>Animation</label>
+            <button id="rotate-btn" onclick="toggleRotation(this)">Stop Auto-Rotate</button>
+        </div>
+    </div>
+
+    <div class="specs-panel">
+        <h3>Specifications</h3>
+        <div class="spec-item">
+            <span class="spec-label">Height:</span>
+            <span class="spec-value">9.5 inches</span>
+        </div>
+        <div class="spec-item">
+            <span class="spec-label">Base Diameter:</span>
+            <span class="spec-value">6.75 inches</span>
+        </div>
+        <div class="spec-item">
+            <span class="spec-label">Metal:</span>
+            <span class="spec-value">18K Yellow Gold</span>
+        </div>
+        <div class="spec-item">
+            <span class="spec-label">Weight:</span>
+            <span class="spec-value">~1050g</span>
+        </div>
+        <div class="spec-item">
+            <span class="spec-label">Total Gemstones:</span>
+            <span class="spec-value">48 stones</span>
+        </div>
+        <div class="spec-item">
+            <span class="spec-label">Total Carats:</span>
+            <span class="spec-value">~162ct</span>
+        </div>
+        
+        <div class="gemstone-legend">
+            <div class="gem-item">
+                <div class="gem-color" style="background: linear-gradient(135deg, #8B0000 0%, #FF4500 100%);"></div>
+                <span>Pigeon Blood Ruby (64ct)</span>
+            </div>
+            <div class="gem-item">
+                <div class="gem-color" style="background: linear-gradient(135deg, #8B008B 0%, #DA70D6 100%);"></div>
+                <span>Rhodolite Garnet (2×12ct)</span>
+            </div>
+            <div class="gem-item">
+                <div class="gem-color" style="background: linear-gradient(135deg, #DAA520 0%, #FFD700 100%);"></div>
+                <span>Golden Topaz (4, ~72ct)</span>
+            </div>
+            <div class="gem-item">
+                <div class="gem-color" style="background: radial-gradient(circle, #FFFFFF 0%, #E0E0E0 100%);"></div>
+                <span>Cubic Zirconia (40, ~2ct)</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha512-dLxUelApnYxpLt6K2iomGngnHO83iUvZytA3YjDUCjT0HDOHKXnVYdf3hU4JjM8uEhxf9nD1/ey98U3t2vZ0qQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        let scene, camera, renderer, crown, autoRotate = true;
+        let currentViewMode = 'solid';
+        
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x1a0e0e);
+            scene.fog = new THREE.Fog(0x1a0e0e, 10, 50);
+            
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 5, 15);
+            camera.lookAt(0, 3, 0);
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+            
+            // Lighting setup
+            const ambientLight = new THREE.AmbientLight(0xffd4a3, 0.5);
+            scene.add(ambientLight);
+            
+            const keyLight = new THREE.DirectionalLight(0xffffff, 1.3);
+            keyLight.position.set(5, 10, 5);
+            keyLight.castShadow = true;
+            scene.add(keyLight);
+            
+            const fillLight = new THREE.DirectionalLight(0xffa500, 0.7);
+            fillLight.position.set(-5, 5, -5);
+            scene.add(fillLight);
+            
+            const rimLight = new THREE.DirectionalLight(0xff6347, 0.9);
+            rimLight.position.set(0, 5, -10);
+            scene.add(rimLight);
+            
+            const gemLight1 = new THREE.PointLight(0xff4500, 1.2, 10);
+            gemLight1.position.set(0, 7, 0);
+            scene.add(gemLight1);
+            
+            const gemLight2 = new THREE.PointLight(0xdaa520, 1, 8);
+            gemLight2.position.set(2, 4, 2);
+            scene.add(gemLight2);
+            
+            createCrown();
+            setupControls();
+            
+            window.addEventListener('resize', onWindowResize);
+            animate();
+        }
+        
+        function createCrown() {
+            crown = new THREE.Group();
+            
+            // EXACT materials from reference images
+            const goldMaterial = new THREE.MeshStandardMaterial({
+                color: 0xdaa520,
+                metalness: 0.9,
+                roughness: 0.2,
+                emissive: 0x4d3300,
+                emissiveIntensity: 0.15
+            });
+            
+            const rubyMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0x8b0000,
+                metalness: 0.1,
+                roughness: 0.1,
+                transparent: true,
+                opacity: 0.85,
+                transmission: 0.5,
+                thickness: 0.5,
+                emissive: 0xff0000,
+                emissiveIntensity: 0.4
+            });
+            
+            // GARNET material - purple rhodolite
+            const garnetMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0x8B008B,
+                metalness: 0.1,
+                roughness: 0.1,
+                transparent: true,
+                opacity: 0.8,
+                transmission: 0.5,
+                thickness: 0.5,
+                emissive: 0xDA70D6,
+                emissiveIntensity: 0.3
+            });
+            
+            const topazMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xdaa520,
+                metalness: 0.1,
+                roughness: 0.05,
+                transparent: true,
+                opacity: 0.75,
+                transmission: 0.6,
+                emissive: 0xffaa00,
+                emissiveIntensity: 0.25
+            });
+            
+            const czMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xffffff,
+                metalness: 0.2,
+                roughness: 0.05,
+                transparent: true,
+                opacity: 0.9,
+                transmission: 0.7,
+                emissive: 0xffffff,
+                emissiveIntensity: 0.2
+            });
+            
+            // Base ring
+            const baseGeometry = new THREE.TorusGeometry(3.4, 0.3, 16, 64);
+            const baseBand = new THREE.Mesh(baseGeometry, goldMaterial);
+            baseBand.rotation.x = Math.PI / 2;
+            baseBand.position.y = 0.5;
+            baseBand.castShadow = true;
+            crown.add(baseBand);
+            
+            // Base details - instanced (32 gold details)
+            const baseDetailGeo = new THREE.SphereGeometry(0.08, 8, 8);
+            const baseDetails = new THREE.InstancedMesh(baseDetailGeo, goldMaterial, 32);
+            const matrix = new THREE.Matrix4();
+            
+            for (let i = 0; i < 32; i++) {
+                const angle = (i / 32) * Math.PI * 2;
+                matrix.setPosition(Math.cos(angle) * 3.4, 0.5, Math.sin(angle) * 3.4);
+                baseDetails.setMatrixAt(i, matrix);
+            }
+            baseDetails.instanceMatrix.needsUpdate = true;
+            crown.add(baseDetails);
+            
+            // 40 CZ STONES on base - instanced
+            const czGeo = new THREE.SphereGeometry(0.04, 8, 8);
+            const czStones = new THREE.InstancedMesh(czGeo, czMaterial, 40);
+            for (let i = 0; i < 40; i++) {
+                const angle = (i / 40) * Math.PI * 2;
+                const offset = (i % 2) * 0.15;
+                matrix.setPosition(Math.cos(angle) * 3.4, 0.65 + offset, Math.sin(angle) * 3.4);
+                czStones.setMatrixAt(i, matrix);
+            }
+            czStones.instanceMatrix.needsUpdate = true;
+            crown.add(czStones);
+            
+            // Central frame
+            const frameGeo = new THREE.CylinderGeometry(0.15, 0.25, 6, 16);
+            const centralFrame = new THREE.Mesh(frameGeo, goldMaterial);
+            centralFrame.position.y = 3.5;
+            centralFrame.castShadow = true;
+            crown.add(centralFrame);
+            
+            // TOP RUBY (part of 64ct total) - Large cabochon
+            const topRubyGeo = new THREE.SphereGeometry(0.9, 32, 32);
+            topRubyGeo.scale(1, 1.2, 0.8);
+            const topRuby = new THREE.Mesh(topRubyGeo, rubyMaterial);
+            topRuby.position.y = 7;
+            crown.add(topRuby);
+            
+            // Top ruby bezel
+            const topBezelGeo = new THREE.TorusGeometry(1.1, 0.1, 8, 32);
+            const topBezel = new THREE.Mesh(topBezelGeo, goldMaterial);
+            topBezel.rotation.x = Math.PI / 2;
+            topBezel.position.y = 7;
+            crown.add(topBezel);
+            
+            // S-curve tendrils
+            for (let i = 0; i < 4; i++) {
+                const angle = (i / 4) * Math.PI * 2;
+                const curve = new THREE.QuadraticBezierCurve3(
+                    new THREE.Vector3(Math.cos(angle) * 1.1, 7, Math.sin(angle) * 1.1),
+                    new THREE.Vector3(Math.cos(angle) * 1.5, 7.5, Math.sin(angle) * 1.5),
+                    new THREE.Vector3(Math.cos(angle) * 1.3, 8, Math.sin(angle) * 1.3)
+                );
+                const tendrilGeo = new THREE.TubeGeometry(curve, 20, 0.04, 8, false);
+                const tendril = new THREE.Mesh(tendrilGeo, goldMaterial);
+                crown.add(tendril);
+            }
+            
+            // Central spire
+            const spireGeo = new THREE.ConeGeometry(0.15, 1.2, 8);
+            const spire = new THREE.Mesh(spireGeo, goldMaterial);
+            spire.position.y = 8.6;
+            crown.add(spire);
+            
+            // TWO 12ct RHODOLITE GARNETS - Marquise cut (center bottom)
+            const garnet1Geo = new THREE.OctahedronGeometry(0.55, 0);
+            garnet1Geo.scale(0.5, 1, 0.3);
+            const garnet1 = new THREE.Mesh(garnet1Geo, garnetMaterial);
+            garnet1.position.y = 4.8;
+            crown.add(garnet1);
+            
+            const garnet2Geo = new THREE.OctahedronGeometry(0.55, 0);
+            garnet2Geo.scale(0.5, 1, 0.3);
+            const garnet2 = new THREE.Mesh(garnet2Geo, garnetMaterial);
+            garnet2.position.y = 4.2;
+            crown.add(garnet2);
+            
+            // Garnet frames
+            const garnetFrame1 = new THREE.Mesh(new THREE.BoxGeometry(0.75, 1.4, 0.08), goldMaterial);
+            garnetFrame1.position.y = 4.8;
+            crown.add(garnetFrame1);
+            
+            const garnetFrame2 = new THREE.Mesh(new THREE.BoxGeometry(0.75, 1.4, 0.08), goldMaterial);
+            garnetFrame2.position.y = 4.2;
+            crown.add(garnetFrame2);
+            
+            // Flame wings (6 total)
+            for (let side = 0; side < 2; side++) {
+                const mult = side === 0 ? 1 : -1;
+                
+                createFlameWing(crown, goldMaterial, 2.2 * mult, 0.5, 7.5, 2.5, 0.8);
+                createFlameWing(crown, goldMaterial, 1.8 * mult, 0.8, 6, 2, 0.6);
+                createFlameWing(crown, goldMaterial, 1.4 * mult, 1.2, 4.5, 1.5, 0.4);
+                
+                // 4 TOPAZ stones total (2 per side) - pear shaped
+                const topazLarge = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.5, 16, 16).scale(0.7, 1, 0.6),
+                    topazMaterial
+                );
+                topazLarge.position.set(2.3 * mult, 2.5, 0);
+                crown.add(topazLarge);
+                
+                const topazSmall = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.45, 16, 16).scale(0.7, 1, 0.6),
+                    topazMaterial
+                );
+                topazSmall.position.set(2.1 * mult, 4, 0);
+                crown.add(topazSmall);
+            }
+            
+            // Store meshes for view modes
+            crown.userData.goldMeshes = [];
+            crown.userData.gemMeshes = [];
+            
+            crown.traverse((child) => {
+                if (child.isMesh || child.isInstancedMesh) {
+                    if (child.material === goldMaterial) {
+                        crown.userData.goldMeshes.push(child);
+                    } else {
+                        crown.userData.gemMeshes.push(child);
+                    }
+                }
+            });
+            
+            crown.position.y = 0;
+            scene.add(crown);
+        }
+        
+        function createFlameWing(parent, material, x, yStart, yEnd, width, depth) {
+            const flameGeo = new THREE.ConeGeometry(width, yEnd - yStart, 8, 4, true);
+            flameGeo.translate(x, (yStart + yEnd) / 2, 0);
+            flameGeo.rotateZ(Math.PI / 6 * Math.sign(x));
+            
+            const flame = new THREE.Mesh(flameGeo, material);
+            flame.castShadow = true;
+            parent.add(flame);
+            
+            for (let i = 0; i < 5; i++) {
+                const spike = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.4, 4), material);
+                spike.position.set(
+                    x + Math.cos(i * 0.5) * width * 0.3,
+                    yStart + (yEnd - yStart) * (i / 5),
+                    Math.sin(i * 0.5) * depth * 0.5
+                );
+                spike.rotation.z = (Math.random() - 0.5) * 0.5;
+                parent.add(spike);
+            }
+        }
+        
+        function setupControls() {
+            const canvas = renderer.domElement;
+            let isDragging = false;
+            let previousMouse = { x: 0, y: 0 };
+            
+            canvas.addEventListener('mousedown', () => {
+                isDragging = true;
+                autoRotate = false;
+                updateRotateButton();
+            });
+            
+            canvas.addEventListener('mousemove', (e) => {
+                if (isDragging && crown) {
+                    const delta = {
+                        x: e.offsetX - previousMouse.x,
+                        y: e.offsetY - previousMouse.y
+                    };
+                    crown.rotation.y += delta.x * 0.01;
+                    crown.rotation.x += delta.y * 0.01;
+                    crown.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, crown.rotation.x));
+                }
+                previousMouse = { x: e.offsetX, y: e.offsetY };
+            });
+            
+            canvas.addEventListener('mouseup', () => isDragging = false);
+            canvas.addEventListener('mouseleave', () => isDragging = false);
+            
+            canvas.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                camera.position.z += e.deltaY * 0.01;
+                camera.position.z = Math.max(8, Math.min(25, camera.position.z));
+            });
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            if (crown && autoRotate) {
+                crown.rotation.y += 0.005;
+            }
+            renderer.render(scene, camera);
+        }
+        
+        function setViewMode(mode, btn) {
+            currentViewMode = mode;
+            document.querySelectorAll('.control-group button').forEach(b => {
+                if (b.textContent === 'Solid' || b.textContent === 'Wireframe' || b.textContent === 'Gems Only') {
+                    b.classList.remove('active');
+                }
+            });
+            btn.classList.add('active');
+            
+            if (!crown) return;
+            
+            crown.traverse((child) => {
+                if (child.isMesh || child.isInstancedMesh) {
+                    const isGold = crown.userData.goldMeshes.includes(child);
+                    switch(mode) {
+                        case 'wireframe':
+                            child.material.wireframe = true;
+                            child.visible = true;
+                            break;
+                        case 'gems':
+                            child.material.wireframe = false;
+                            child.visible = !isGold;
+                            break;
+                        default:
+                            child.material.wireframe = false;
+                            child.visible = true;
+                    }
+                }
+            });
+        }
+        
+        function setView(view) {
+            if (!crown) return;
+            autoRotate = false;
+            updateRotateButton();
+            
+            const duration = 1000;
+            const startRot = { x: crown.rotation.x, y: crown.rotation.y };
+            const startCam = { x: camera.position.x, y: camera.position.y, z: camera.position.z };
+            let targetRot, targetCam;
+            
+            switch(view) {
+                case 'front':
+                    targetRot = { x: 0, y: 0 };
+                    targetCam = { x: 0, y: 5, z: 15 };
+                    break;
+                case 'side':
+                    targetRot = { x: 0, y: Math.PI / 2 };
+                    targetCam = { x: 0, y: 5, z: 15 };
+                    break;
+                case 'top':
+                    targetRot = { x: -Math.PI / 3, y: Math.PI / 4 };
+                    targetCam = { x: 0, y: 10, z: 18 };
+                    break;
+            }
+            
+            const startTime = Date.now();
+            function animateView() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                
+                crown.rotation.x = startRot.x + (targetRot.x - startRot.x) * eased;
+                crown.rotation.y = startRot.y + (targetRot.y - startRot.y) * eased;
+                camera.position.x = startCam.x + (targetCam.x - startCam.x) * eased;
+                camera.position.y = startCam.y + (targetCam.y - startCam.y) * eased;
+                camera.position.z = startCam.z + (targetCam.z - startCam.z) * eased;
+                camera.lookAt(0, 3, 0);
+                
+                if (progress < 1) requestAnimationFrame(animateView);
+            }
+            animateView();
+        }
+        
+        function toggleRotation(button) {
+            autoRotate = !autoRotate;
+            updateRotateButton();
+        }
+        
+        function updateRotateButton() {
+            const btn = document.getElementById('rotate-btn');
+            if (btn) {
+                btn.textContent = autoRotate ? 'Stop Auto-Rotate' : 'Start Auto-Rotate';
+                btn.classList.toggle('active', autoRotate);
+            }
+        }
+        
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        init();
+    </script>
+</body>
+</html>
