@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phoenix Flame Crown - 3D Interactive Model (CORRECTED)</title>
+    <title>Phoenix Flame Crown - 3D Interactive Model</title>
     <meta name="description" content="Interactive 3D model of the Phoenix Flame Crown featuring 162 carats of precious gemstones in 18K gold.">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:wght@300;400&display=swap');
@@ -159,18 +159,6 @@
             margin-right: 10px;
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
-        
-        .correction-badge {
-            background: #daa520;
-            color: #0a0404;
-            padding: 4px 12px;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            border-radius: 2px;
-            margin-top: 10px;
-            display: inline-block;
-        }
     </style>
 </head>
 <body>
@@ -179,7 +167,6 @@
     <div class="ui-panel">
         <h1>Phoenix Crown</h1>
         <h2>Interactive 3D Model</h2>
-        <span class="correction-badge">CORRECTED SPECS</span>
         
         <div class="control-group">
             <label>View Mode</label>
@@ -248,7 +235,7 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha512-dLxUelApnYxpLt6K2iomGngnHO83iUvZytA3YjDUCjT0HDOHKXnVYdf3hU4JjM8uEhxf9nD1/ey98U3t2vZ0qQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
         let scene, camera, renderer, crown, autoRotate = true;
         let currentViewMode = 'solid';
@@ -377,6 +364,7 @@
                 matrix.setPosition(Math.cos(angle) * 3.4, 0.5, Math.sin(angle) * 3.4);
                 baseDetails.setMatrixAt(i, matrix);
             }
+            baseDetails.instanceMatrix.needsUpdate = true;
             crown.add(baseDetails);
             
             // 40 CZ STONES on base - instanced
@@ -388,6 +376,7 @@
                 matrix.setPosition(Math.cos(angle) * 3.4, 0.65 + offset, Math.sin(angle) * 3.4);
                 czStones.setMatrixAt(i, matrix);
             }
+            czStones.instanceMatrix.needsUpdate = true;
             crown.add(czStones);
             
             // Central frame
