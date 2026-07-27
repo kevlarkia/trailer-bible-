@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node src/index.js",
     "deploy": "node scripts/deploy-commands.js",
-    "lint": "echo \"No linter configured\""
+    "lint": "echo \"No linter configured\"",
+    "convert-pdf": "node scripts/convert-to-pdf.js"
   },
   "engines": {
     "node": ">=18.0.0"

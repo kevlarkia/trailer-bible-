@@ -82,3 +82,22 @@ If `OPENAI_API_KEY` is set and Message Content Intent is enabled, the bot will r
 ### Notes
 - Never commit or share your `DISCORD_TOKEN`.
 - Public Key and Application ID are safe to share; token is secret.
+
+### 9) Document Conversion (Optional)
+
+This repository includes a utility to convert markdown files to PDF using [Pandoc](https://pandoc.org/).
+
+**Prerequisites:**
+- Install Pandoc: `sudo apt-get install pandoc` (Linux) or see [Pandoc installation guide](https://pandoc.org/installing.html)
+- Install LaTeX for PDF generation: `sudo apt-get install texlive-latex-base texlive-latex-recommended`
+
+**Usage:**
+```bash
+# Convert the default PSYCHOGRAPH case file
+npm run convert-pdf
+
+# Convert a custom markdown file
+node scripts/convert-to-pdf.js input.md output.pdf
+```
+
+The script converts `PSYCHOGRAPH_CASE_FILE_COMPLETE_v2.md` to `PSYCHOGRAPH_CASE_FILE_v2.pdf` by default.
